@@ -4,11 +4,13 @@ import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { useNavigate, useLocation } from "react-router-dom";
-import { AlertCircle, CheckCircle2, Info } from "lucide-react";
+import { AlertCircle, CheckCircle2, Info, Download } from "lucide-react";
+import { generateDiagnosticPDF } from "@/lib/pdfGenerator";
 
 const Results = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const { symptoms = [], patient } = location.state || {};
 
   // Mock results based on symptoms
   const results = [
@@ -62,20 +64,59 @@ const Results = () => {
     return "text-success";
   };
 
+  const handleDownloadPDF = () => {
+    if (patient) {
+      generateDiagnosticPDF(patient, symptoms, results);
+    }
+  };
+
   return (
     <Layout>
       <div className="max-w-5xl mx-auto space-y-8">
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between flex-wrap gap-4">
           <div>
             <h1 className="text-4xl font-bold mb-2">Résultats du Diagnostic</h1>
             <p className="text-muted-foreground text-lg">
               Analyse complétée par l'intelligence artificielle
             </p>
           </div>
-          <Button variant="outline" onClick={() => navigate("/diagnostic")}>
-            Nouveau diagnostic
-          </Button>
+          <div className="flex gap-3">
+            <Button variant="outline" onClick={handleDownloadPDF}>
+              <Download className="mr-2 h-4 w-4" />
+              Télécharger PDF
+            </Button>
+            <Button variant="outline" onClick={() => navigate("/diagnostic")}>
+              Nouveau diagnostic
+            </Button>
+          </div>
         </div>
+
+        {/* Patient Information */}
+        {patient && (
+          <Card className="shadow-card">
+            <CardHeader>
+              <CardTitle>Informations du Patient</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid md:grid-cols-3 gap-4">
+                <div>
+                  <p className="text-sm text-muted-foreground">Nom</p>
+                  <p className="font-semibold">{patient.name}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-muted-foreground">Âge</p>
+                  <p className="font-semibold">{patient.age} ans</p>
+                </div>
+                <div>
+                  <p className="text-sm text-muted-foreground">Genre</p>
+                  <p className="font-semibold">
+                    {patient.gender === "male" ? "Homme" : patient.gender === "female" ? "Femme" : "Autre"}
+                  </p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        )}
 
         {/* Alert */}
         <Card className="border-primary/50 bg-primary/5">

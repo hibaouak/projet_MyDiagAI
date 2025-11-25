@@ -5,8 +5,20 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useNavigate } from "react-router-dom";
-import { Loader2 } from "lucide-react";
+import { Loader2, User } from "lucide-react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+
+const patientSchema = z.object({
+  name: z.string().min(2, "Le nom doit contenir au moins 2 caractères"),
+  age: z.string().min(1, "L'âge est requis"),
+  gender: z.string().min(1, "Le genre est requis"),
+});
 
 const symptoms = [
   { id: "fever", label: "Fièvre", category: "général" },
@@ -25,6 +37,16 @@ const Diagnostic = () => {
   const navigate = useNavigate();
   const [selectedSymptoms, setSelectedSymptoms] = useState<string[]>([]);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [step, setStep] = useState(1);
+
+  const form = useForm<z.infer<typeof patientSchema>>({
+    resolver: zodResolver(patientSchema),
+    defaultValues: {
+      name: "",
+      age: "",
+      gender: "",
+    },
+  });
 
   const handleSymptomToggle = (symptomId: string) => {
     setSelectedSymptoms((prev) =>
@@ -38,10 +60,16 @@ const Diagnostic = () => {
     if (selectedSymptoms.length === 0) return;
     
     setIsAnalyzing(true);
+    const patientData = form.getValues();
     // Simulate AI analysis
     setTimeout(() => {
       setIsAnalyzing(false);
-      navigate("/results", { state: { symptoms: selectedSymptoms } });
+      navigate("/results", { 
+        state: { 
+          symptoms: selectedSymptoms,
+          patient: patientData
+        } 
+      });
     }, 2000);
   };
 
@@ -62,9 +90,93 @@ const Diagnostic = () => {
         <div>
           <h1 className="text-4xl font-bold mb-2">Nouveau Diagnostic</h1>
           <p className="text-muted-foreground text-lg">
-            Sélectionnez les symptômes du patient pour obtenir un diagnostic IA
+            {step === 1 
+              ? "Renseignez les informations du patient"
+              : "Sélectionnez les symptômes du patient pour obtenir un diagnostic IA"
+            }
           </p>
         </div>
+
+        {/* Patient Information Form */}
+        {step === 1 && (
+          <Card className="shadow-card">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <User className="h-5 w-5 text-primary" />
+                Informations du Patient
+              </CardTitle>
+              <CardDescription>
+                Veuillez renseigner les informations du patient avant de continuer
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Form {...form}>
+                <form onSubmit={form.handleSubmit(() => setStep(2))} className="space-y-6">
+                  <FormField
+                    control={form.control}
+                    name="name"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Nom complet</FormLabel>
+                        <FormControl>
+                          <Input placeholder="Ex: Jean Dupont" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <div className="grid md:grid-cols-2 gap-6">
+                    <FormField
+                      control={form.control}
+                      name="age"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Âge</FormLabel>
+                          <FormControl>
+                            <Input type="number" placeholder="Ex: 35" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={form.control}
+                      name="gender"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Genre</FormLabel>
+                          <Select onValueChange={field.onChange} defaultValue={field.value}>
+                            <FormControl>
+                              <SelectTrigger>
+                                <SelectValue placeholder="Sélectionner" />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              <SelectItem value="male">Homme</SelectItem>
+                              <SelectItem value="female">Femme</SelectItem>
+                              <SelectItem value="other">Autre</SelectItem>
+                            </SelectContent>
+                          </Select>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+
+                  <Button type="submit" size="lg" className="w-full">
+                    Continuer vers la sélection des symptômes
+                  </Button>
+                </form>
+              </Form>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Symptoms Selection */}
+        {step === 2 && (
+          <>
 
         <Card className="shadow-card">
           <CardHeader>
@@ -107,7 +219,7 @@ const Diagnostic = () => {
 
         <Card className="shadow-card bg-gradient-card">
           <CardContent className="pt-6">
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between flex-wrap gap-4">
               <div>
                 <p className="font-semibold text-lg mb-1">
                   {selectedSymptoms.length} symptôme(s) sélectionné(s)
@@ -116,23 +228,33 @@ const Diagnostic = () => {
                   Minimum 1 symptôme requis pour l'analyse
                 </p>
               </div>
-              <Button
-                size="lg"
-                disabled={selectedSymptoms.length === 0 || isAnalyzing}
-                onClick={handleAnalyze}
-              >
-                {isAnalyzing ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Analyse en cours...
-                  </>
-                ) : (
-                  "Analyser avec l'IA"
-                )}
-              </Button>
+              <div className="flex gap-3">
+                <Button
+                  variant="outline"
+                  onClick={() => setStep(1)}
+                >
+                  Retour
+                </Button>
+                <Button
+                  size="lg"
+                  disabled={selectedSymptoms.length === 0 || isAnalyzing}
+                  onClick={handleAnalyze}
+                >
+                  {isAnalyzing ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Analyse en cours...
+                    </>
+                  ) : (
+                    "Analyser avec l'IA"
+                  )}
+                </Button>
+              </div>
             </div>
           </CardContent>
         </Card>
+        </>
+        )}
       </div>
     </Layout>
   );

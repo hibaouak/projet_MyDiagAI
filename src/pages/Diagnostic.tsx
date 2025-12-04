@@ -23,14 +23,29 @@ const patientSchema = z.object({
 const symptoms = [
   { id: "fever", label: "Fièvre", category: "général" },
   { id: "cough", label: "Toux", category: "respiratoire" },
-  { id: "headache", label: "Maux de tête", category: "neurologique" },
+  { id: "headache", label: "Mal de tête", category: "neurologique" },
   { id: "fatigue", label: "Fatigue", category: "général" },
-  { id: "nausea", label: "Nausées", category: "digestif" },
-  { id: "dizziness", label: "Vertiges", category: "neurologique" },
+  { id: "nausea", label: "Nausée", category: "digestif" },
+  { id: "vomiting", label: "Vomissements", category: "digestif" },
+  { id: "diarrhea", label: "Diarrhée", category: "digestif" },
+  { id: "rash", label: "Éruption cutanée", category: "dermatologique" },
+  { id: "sore-throat", label: "Mal de gorge", category: "respiratoire" },
+  { id: "shortness-of-breath", label: "Essoufflement", category: "respiratoire" },
   { id: "chest-pain", label: "Douleur thoracique", category: "cardiovasculaire" },
-  { id: "breathing", label: "Difficultés respiratoires", category: "respiratoire" },
-  { id: "stomach-pain", label: "Douleurs abdominales", category: "digestif" },
-  { id: "muscle-pain", label: "Douleurs musculaires", category: "général" },
+  { id: "dizziness", label: "Étourdissement", category: "neurologique" },
+  { id: "joint-pain", label: "Douleurs articulaires", category: "musculosquelettique" },
+  { id: "muscle-pain", label: "Douleurs musculaires", category: "musculosquelettique" },
+  { id: "loss-of-smell", label: "Perte d'odorat", category: "neurologique" },
+  { id: "loss-of-taste", label: "Perte de goût", category: "neurologique" },
+  { id: "runny-nose", label: "Nez qui coule", category: "respiratoire" },
+  { id: "abdominal-pain", label: "Douleur abdominale", category: "digestif" },
+  { id: "chills", label: "Frissons", category: "général" },
+  { id: "thirst", label: "Soif", category: "général" },
+  { id: "sensitivity", label: "Sensibilité", category: "neurologique" },
+  { id: "pain", label: "Douleur", category: "général" },
+  { id: "itching", label: "Démangeaison", category: "dermatologique" },
+  { id: "loss-of-appetite", label: "Perte d'appétit", category: "digestif" },
+  { id: "other-disorders", label: "Troubles divers", category: "général" },
 ];
 
 const Diagnostic = () => {
@@ -80,6 +95,8 @@ const Diagnostic = () => {
       neurologique: "bg-warning/10 text-warning",
       cardiovasculaire: "bg-destructive/10 text-destructive",
       digestif: "bg-success/10 text-success",
+      dermatologique: "bg-orange-500/10 text-orange-600",
+      musculosquelettique: "bg-purple-500/10 text-purple-600",
     };
     return colors[category] || "bg-muted text-muted-foreground";
   };

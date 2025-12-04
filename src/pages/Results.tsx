@@ -118,20 +118,7 @@ const Results = () => {
           </Card>
         )}
 
-        {/* Alert */}
-        <Card className="border-primary/50 bg-primary/5">
-          <CardContent className="flex items-start gap-3 pt-6">
-            <Info className="h-5 w-5 text-primary mt-0.5" />
-            <div className="flex-1">
-              <p className="font-medium">Note importante</p>
-              <p className="text-sm text-muted-foreground mt-1">
-                Ces résultats sont générés par IA et ne remplacent pas un diagnostic médical
-                professionnel. Consultez un médecin pour confirmer.
-              </p>
-            </div>
-          </CardContent>
-        </Card>
-
+       
         {/* Results */}
         <div className="space-y-4">
           {results.map((result, index) => (

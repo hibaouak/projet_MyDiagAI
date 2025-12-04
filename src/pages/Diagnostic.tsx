@@ -173,7 +173,6 @@ const Diagnostic = () => {
                             <SelectContent>
                               <SelectItem value="male">Homme</SelectItem>
                               <SelectItem value="female">Femme</SelectItem>
-                              <SelectItem value="other">Autre</SelectItem>
                             </SelectContent>
                           </Select>
                           <FormMessage />
